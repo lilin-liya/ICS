@@ -1,0 +1,54 @@
+#	Name:李林	ID:5130379091
+#	sum.ys
+		.pos 0
+init:
+		irmovl Stack, %esp	# Set up stack pointer
+		irmovl Stack, %ebp	# Set up base pointer
+		call Main 			# Execute main program
+		halt				# Terminate program
+
+# Sample linked list
+.align 4
+ele1:
+		.long 0x00a
+		.long ele2
+ele2:
+		.long 0x0b0
+		.long ele3
+ele3:
+		.long 0xc00
+		.long 0
+
+Main:
+		pushl %ebp
+		rrmovl %esp,%ebp
+		irmovl ele1,%eax	# start with ele1
+		pushl %eax
+		call sum_list
+		rrmovl %ebp,%esp
+		popl %ebp
+		ret
+
+sum_list:
+		pushl %ebp
+		rrmovl %esp, %ebp
+		xorl %eax, %eax			# eax = sum = 0
+		mrmovl 8(%ebp), %ecx	# ecx = ele1
+		andl %ecx, %ecx			# while(ls)
+		je End
+
+Loop:	
+		mrmovl (%ecx), %edx		# get val
+		addl %edx, %eax			# sum += val
+		mrmovl 4(%ecx), %ecx	# ecx = ele1->next
+		andl %ecx, %ecx			# while(ls)
+		jne Loop
+
+End:	
+		popl %ebp
+		ret
+
+
+#	Stack
+		.pos 0x100
+Stack:

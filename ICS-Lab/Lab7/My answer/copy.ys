@@ -1,0 +1,63 @@
+#	Name:李林	ID:5130379091
+#	copy.ys
+		.pos 0
+init:	irmovl Stack, %esp
+		irmovl Stack, %ebp
+		call Main
+		halt
+
+	.align 4
+# Source block
+src:
+		.long 0x00a
+		.long 0x0b0
+		.long 0xc00
+# Destination block
+dest:
+		.long 0x111
+		.long 0x222
+		.long 0x333
+
+Main:
+		pushl %ebp
+		rrmovl %esp, %ebp
+		irmovl $3, %eax		
+		pushl %eax					# push len
+		irmovl dest, %eax
+		pushl %eax					# push dest
+		irmovl src, %eax
+		pushl %eax					# push src
+		call copy_block
+		rrmovl %ebp, %esp
+		popl %ebp
+		ret
+
+copy_block:
+		pushl %ebp
+		rrmovl %esp, %ebp
+		mrmovl 16(%ebp), %esi		# esi = len
+		mrmovl 12(%ebp), %ebx		# ebx = dest
+		mrmovl 8(%ebp), %ecx		# ecx = src
+		xorl %eax, %eax				# result = 0
+
+Loop:	
+		andl %esi, %esi				# while(len > 0)
+		je End
+		mrmovl (%ecx), %edi			# val = *src
+		irmovl $4, %edx
+		addl %edx, %ecx				# src++
+		rmmovl %edi, (%ebx)			# *dest = val
+		addl %edx, %ebx				# dest++
+		xorl %edi, %eax				# result ^= val
+		irmovl $1, %edx
+		subl %edx, %esi				# len--
+		jmp Loop
+
+End:	
+		popl %ebp
+		ret
+
+# Stack
+	.pos 0x100
+
+Stack:
